@@ -44,7 +44,7 @@ D=M   // Aにセットされている先のデータがMを示す　それをD�
 AM=M-1 // spのデータを−１する　そのデータをAレジスタにもセットする
 MD=D-M // D-MをMとDに保存
 
-@ZERO
+@ZERO_%N // 区別が必要
 D;JEQ  // Dが０の場合
 
 @SP
@@ -53,12 +53,12 @@ M=0
 @GO
 0;JMP
 
-(ZERO)
+(ZERO_%N)
 @SP
 A=M
 M=-1
 
-(GO)
+(GO_%N)
 @SP
 M=M+1
 
@@ -72,21 +72,21 @@ D=M   // Aにセットされている先のデータがMを示す　それをD�
 AM=M-1 // spのデータを−１する　そのデータをAレジスタにもセットする
 MD=D-M // D-MをMとDに保存
 
-@ZERO
+@ZERO_%N
 D;JGT  // Dが>の場合
 
 @SP
 A=M
 M=0
-@GO
+@GO_%N
 0;JMP
 
-(ZERO)
+(ZERO_%N)
 @SP
 A=M
 M=-1
 
-(GO)
+(GO_%N)
 @SP
 M=M+1
 

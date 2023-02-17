@@ -14,8 +14,9 @@ fn main() {
     }
 
     let mut result = Vec::new();
+    let mut i = 0;
     for e in enum_elements {
-        write_command::write(e, &mut result);
+        write_command::write(e, &mut result, &mut i);
     }
 
     if let Err(e) = write_command::writefile(&mut result){
