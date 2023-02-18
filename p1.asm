@@ -79,6 +79,7 @@ D;JGT  // Dが>の場合
 A=M
 M=0
 @GO_%N
+
 0;JMP
 
 (ZERO_%N)

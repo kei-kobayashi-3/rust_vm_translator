@@ -1,12 +1,11 @@
 use vm_translator_rust::{read_file, get_elements, write_command};
 
 fn main() {
-    let contents = match read_file::read(){
+    let (contents, file_name) = match read_file::read(){
         Ok(s) => s,
         Err(e) => panic!("Problem openinng the file: {}", e),
     };
     let line_elements = get_elements::elements(&contents);
-
     let mut enum_elements = Vec::new();
     for s in line_elements{
         let e_enum = get_elements::get_cmmand_type(s);
@@ -15,8 +14,9 @@ fn main() {
 
     let mut result = Vec::new();
     let mut i = 0;
+
     for e in enum_elements {
-        write_command::write(e, &mut result, &mut i);
+        write_command::write(e, &mut result, &mut i, &file_name);
     }
 
     if let Err(e) = write_command::writefile(&mut result){
