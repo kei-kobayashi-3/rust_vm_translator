@@ -59,9 +59,9 @@ pub fn write<'a>(command_type :CommandType, result: &'a mut Vec<String>, i :&'a 
     let s = format!(base_static_pop!(), n = n, fn = file_name);
      result.push(s); result },
     CommandType::C_POP(_, _) => todo!(),
-    CommandType::C_LABEL(_) => todo!(),
-    CommandType::C_GOTO(_) => todo!(),
-    CommandType::C_IF(_) => todo!(),
+    CommandType::C_LABEL(s)   => { result.push(String::from("(") + s + ")\n"); result },
+    CommandType::C_GOTO(s)    => { result.push(String::from("@") + s + "\n"); result },
+    CommandType::C_IF_GOTO(s) => { result.push(String::from("@SP\nAM=M-1\nD=M\n@") + s + "\nD;JNE\n"); result },
     CommandType::C_FUNCTION(_, _) => todo!(),
     CommandType::C_RETURN => todo!(),
     CommandType::C_CALL(_, _) => todo!(),
