@@ -1,47 +1,50 @@
-use vm_translator_rust::{read_file, get_elements, write_command};
+use std::{fs::File, io::Write};
+use vm_translator_rust::{read_file, get_command::{CommandType, ContentWithCommandType, self}, write_command};
 
-// chat-gpt refactoring
+
 fn main() {
-    match read_file::read() {
-        Ok((contents, file_name)) => {
-            let line_elements = get_elements::elements(&contents);
-            let enum_elements = line_elements.iter().map(|s| get_elements::get_command_type(s)).collect::<Vec<_>>();
-            let mut result = Vec::new();
-            let mut i = 0;
-            for e in enum_elements {
-                write_command::write(e, &mut result, &mut i, &file_name);
+    let mut folder_path = String::new();
+    println!("input folder path.");
+    std::io::stdin().read_line(&mut folder_path).expect("failed reading input words.");
+    let folder_path = folder_path.trim();
+
+    let file_content_list = read_file::get_file_content_list(folder_path);
+
+    let content_in_sysinit = file_content_list.iter().find(|&f| f.init );
+    let filename_in_sysinit = match content_in_sysinit {
+        Some(filecontent) => &filecontent.file_name,
+        None => panic!("No sysinit found"),
+    };
+
+    let content_with_commands_list = {
+        let file_content_list = &file_content_list;
+      let mut content_with_commands = Vec::new();
+      for content in file_content_list {
+          content_with_commands.push( ContentWithCommandType::new(content));
+      }
+      content_with_commands
+    };
+
+    let mut folder_path_list: Vec<&str> = folder_path.split("/").collect();
+    let  out_path = folder_path.to_string() + "/" + folder_path_list.pop().unwrap() + ".asm";
+    let mut wf = File::create(out_path).expect("problem creating file.");
+
+    let mut i = 0;
+    let boot_strap_code = ("@256\nD=A\n@SP\nM=D\n", "call Sys.init 0");
+    let boot_string = boot_strap_code.0.to_string() + &write_command::to_string(&get_command::to_command_type(boot_strap_code.1), &mut i, filename_in_sysinit, &String::from("Sys.init"));
+    wf.write_all(boot_string.as_bytes()).expect("problem boot strap code.");
+
+    for content_with_commands in content_with_commands_list{
+        let file_name = &content_with_commands.file_content.file_name;
+        let commands = content_with_commands.command_type;
+        let mut function_name = String::new();
+
+        for command in &commands {
+            if let CommandType::C_FUNCTION(f_name, _) = command{
+                function_name = f_name.to_string();
             }
-            if let Err(e) = write_command::writefile(&mut result) {
-                panic!("Problem writing the file: {}", e);
-            }
-        },
-        Err(e) => panic!("Problem opening the file: {}", e),
+            wf.write_all(write_command::to_string(command, &mut i, &file_name, &function_name).as_bytes()).expect("problem writing file.");
+        }
+        // commands.iter().for_each(|command| wf.write_all(write_command::to_string(command, &mut i, &file_name).as_bytes()).expect("problem writing file."));
     }
 }
-
-// let mut contents = String::from("call Sys.init\n");
-// let initialize = String::from("@256\nD=A\n@SP\nM=D\n");
-//           result.push(initialize);
-// fn main() {
-//     let (contents, file_name) = match read_file::read(){
-//         Ok(s) => s,
-//         Err(e) => panic!("Problem openinng the file: {}", e),
-//     };
-//     let line_elements = get_elements::elements(&contents);
-//     let mut enum_elements = Vec::new();
-//     for s in line_elements{
-//         let e_enum = get_elements::get_cmmand_type(s);
-//         enum_elements.push(e_enum);
-//     }
-
-//     let mut result = Vec::new();
-//     let mut i = 0;
-
-//     for e in enum_elements {
-//         write_command::write(e, &mut result, &mut i, &file_name);
-//     }
-
-//     if let Err(e) = write_command::writefile(&mut result){
-//         panic!("Problem writing the file: {}", e);
-//     }
-// }
