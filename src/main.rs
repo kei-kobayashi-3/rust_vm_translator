@@ -19,6 +19,9 @@ fn main() {
     }
 }
 
+// let mut contents = String::from("call Sys.init\n");
+// let initialize = String::from("@256\nD=A\n@SP\nM=D\n");
+//           result.push(initialize);
 // fn main() {
 //     let (contents, file_name) = match read_file::read(){
 //         Ok(s) => s,
